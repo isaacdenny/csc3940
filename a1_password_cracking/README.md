@@ -6,6 +6,8 @@
     
 Using the rockyou wordlist went pretty quick for this one.
 
+---
+
 - [x] bob456: W1nt3r22
 
 I used a custom wordlist for bob456 below
@@ -60,6 +62,8 @@ Which also works with the ruleset at the bottom and dictionary:
 winter
 ```
 
+---
+
 - [ ] charlie789:
 
 ```
@@ -76,29 +80,15 @@ autumnfall
 ```
 **Using the rulesets below**
 
+---
+
 - [ ] diana101:
-
-```
-
-```
-
-**Using the rulesets below**
-
 - [ ] edward202: 
-
-```
-
-```
-
-**Using the rulesets below**
-
 - [ ] frank303:
 
-```
+I didnt have any luck with diana, edward, or frank. I tried my rulesets on their dict files [here](https://github.com/isaacdenny/csc3940/tree/master/a1_password_cracking/dicts)
 
-```
-
-**Using the rulesets below**
+---
 
 - [x] grace404: Spring88
 
@@ -133,20 +123,27 @@ G@rd3n88!
 
 ![Cracking Grace](https://github.com/isaacdenny/csc3940/blob/master/a1_password_cracking/screenshots/cracking-grace.png)
 
+---
+
 - [ ] henry505:
 
 Tried to crack henry's with no luck:
 ![Trying to crack henry](https://github.com/isaacdenny/csc3940/blob/master/a1_password_cracking/screenshots/trying-henry.png)
+
+---
 
 - [ ] irene606:
 
 No luck with irene either:
 ![Trying Irene](https://github.com/isaacdenny/csc3940/blob/master/a1_password_cracking/screenshots/trying-irene-and-admins.png)
 
+---
+
 - [ ] jack707:
 - [ ] karen808:
 - [ ] admins:
 **See above for some of admins attempts screenshot**
+I didnt have any luck with irene, jack, karen, or admins. I tried my rulesets on their dict files [here](https://github.com/isaacdenny/csc3940/tree/master/a1_password_cracking/dicts)
 
 ## Custom Ruleset
 
