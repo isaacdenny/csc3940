@@ -1,0 +1,1 @@
+admins:$6$O3bUBvwKlZ0BL8um$Q9gevzLKC84U240AwkM1/l2VJalGGnc1E.4LDHRo2KdxwtkkrT2155fKFE/JeL.0ZAqUyivJe0zYeQ.vZTJSe1:1023:1023::/home/admins:/bin/bash
