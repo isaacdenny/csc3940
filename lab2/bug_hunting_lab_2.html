@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>automated_bug_hunting_2</title>
+  <style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } 
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.at { color: #204a87; } 
+code span.bn { color: #0000cf; } 
+code span.cf { color: #204a87; font-weight: bold; } 
+code span.ch { color: #4e9a06; } 
+code span.cn { color: #8f5902; } 
+code span.co { color: #8f5902; font-style: italic; } 
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.dt { color: #204a87; } 
+code span.dv { color: #0000cf; } 
+code span.er { color: #a40000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #0000cf; } 
+code span.fu { color: #204a87; font-weight: bold; } 
+code span.im { } 
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.kw { color: #204a87; font-weight: bold; } 
+code span.op { color: #ce5c00; font-weight: bold; } 
+code span.ot { color: #8f5902; } 
+code span.pp { color: #8f5902; font-style: italic; } 
+code span.sc { color: #ce5c00; font-weight: bold; } 
+code span.ss { color: #4e9a06; } 
+code span.st { color: #4e9a06; } 
+code span.va { color: #000000; } 
+code span.vs { color: #4e9a06; } 
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } 
+</style>
+  <style type="text/css">
+html {
+font-size: 100%;
+overflow-y: scroll;
+-webkit-text-size-adjust: 100%;
+-ms-text-size-adjust: 100%;
+}
+body {
+color: #444;
+font-family: Georgia, Palatino, 'Palatino Linotype', Times, 'Times New Roman', serif;
+font-size: 12px;
+line-height: 1.7;
+padding: 1em;
+margin: auto;
+max-width: 42em;
+background: #fefefe;
+}
+a {
+color: #0645ad;
+text-decoration: none;
+}
+a:visited {
+color: #0b0080;
+}
+a:hover {
+color: #06e;
+}
+a:active {
+color: #faa700;
+}
+a:focus {
+outline: thin dotted;
+}
+*::-moz-selection {
+background: rgba(255, 255, 0, 0.3);
+color: #000;
+}
+*::selection {
+background: rgba(255, 255, 0, 0.3);
+color: #000;
+}
+a::-moz-selection {
+background: rgba(255, 255, 0, 0.3);
+color: #0645ad;
+}
+a::selection {
+background: rgba(255, 255, 0, 0.3);
+color: #0645ad;
+}
+p {
+margin: 1em 0;
+}
+img {
+max-width: 100%;
+}
+h1, h2, h3, h4, h5, h6 {
+color: #111;
+line-height: 125%;
+margin-top: 2em;
+font-weight: normal;
+}
+h4, h5, h6 {
+font-weight: bold;
+}
+h1 {
+font-size: 2.5em;
+}
+h2 {
+font-size: 2em;
+}
+h3 {
+font-size: 1.5em;
+}
+h4 {
+font-size: 1.2em;
+}
+h5 {
+font-size: 1em;
+}
+h6 {
+font-size: 0.9em;
+}
+blockquote {
+color: #666666;
+margin: 0;
+padding-left: 3em;
+border-left: 0.5em #EEE solid;
+}
+hr {
+display: block;
+height: 2px;
+border: 0;
+border-top: 1px solid #aaa;
+border-bottom: 1px solid #eee;
+margin: 1em 0;
+padding: 0;
+}
+pre, code, kbd, samp {
+color: #000;
+font-family: monospace, monospace;
+_font-family: 'courier new', monospace;
+font-size: 0.98em;
+}
+pre {
+white-space: pre;
+white-space: pre-wrap;
+word-wrap: break-word;
+}
+b, strong {
+font-weight: bold;
+}
+dfn {
+font-style: italic;
+}
+ins {
+background: #ff9;
+color: #000;
+text-decoration: none;
+}
+mark {
+background: #ff0;
+color: #000;
+font-style: italic;
+font-weight: bold;
+}
+sub, sup {
+font-size: 75%;
+line-height: 0;
+position: relative;
+vertical-align: baseline;
+}
+sup {
+top: -0.5em;
+}
+sub {
+bottom: -0.25em;
+}
+ul, ol {
+margin: 1em 0;
+padding: 0 0 0 2em;
+}
+li p:last-child {
+margin-bottom: 0;
+}
+ul ul, ol ol {
+margin: .3em 0;
+}
+dl {
+margin-bottom: 1em;
+}
+dt {
+font-weight: bold;
+margin-bottom: .8em;
+}
+dd {
+margin: 0 0 .8em 2em;
+}
+dd:last-child {
+margin-bottom: 0;
+}
+img {
+border: 0;
+-ms-interpolation-mode: bicubic;
+vertical-align: middle;
+}
+figure {
+display: block;
+text-align: center;
+margin: 1em 0;
+}
+figure img {
+border: none;
+margin: 0 auto;
+}
+figcaption {
+font-size: 0.8em;
+font-style: italic;
+margin: 0 0 .8em;
+}
+table {
+margin-bottom: 2em;
+border-bottom: 1px solid #ddd;
+border-right: 1px solid #ddd;
+border-spacing: 0;
+border-collapse: collapse;
+}
+table th {
+padding: .2em 1em;
+background-color: #eee;
+border-top: 1px solid #ddd;
+border-left: 1px solid #ddd;
+}
+table td {
+padding: .2em 1em;
+border-top: 1px solid #ddd;
+border-left: 1px solid #ddd;
+vertical-align: top;
+}
+.author {
+font-size: 1.2em;
+text-align: center;
+}
+@media only screen and (min-width: 480px) {
+body {
+font-size: 14px;
+}
+}
+@media only screen and (min-width: 768px) {
+body {
+font-size: 16px;
+}
+}
+@media print {
+* {
+background: transparent !important;
+color: black !important;
+filter: none !important;
+-ms-filter: none !important;
+}
+body {
+font-size: 12pt;
+max-width: 100%;
+}
+a, a:visited {
+text-decoration: underline;
+}
+hr {
+height: 1px;
+border: 0;
+border-bottom: 1px solid black;
+}
+a[href]:after {
+content: " (" attr(href) ")";
+}
+abbr[title]:after {
+content: " (" attr(title) ")";
+}
+.ir a:after, a[href^="javascript:"]:after, a[href^="#"]:after {
+content: "";
+}
+pre, blockquote {
+border: 1px solid #999;
+padding-right: 1em;
+page-break-inside: avoid;
+}
+tr, img {
+page-break-inside: avoid;
+}
+img {
+max-width: 100% !important;
+}
+@page :left {
+margin: 15mm 20mm 15mm 10mm;
+}
+@page :right {
+margin: 15mm 10mm 15mm 20mm;
+}
+p, h2, h3 {
+orphans: 3;
+widows: 3;
+}
+h2, h3 {
+page-break-after: avoid;
+}
+}</style>
+</head>
+<body>
+<h1 id="csc-3940-systems-security-automated-vulnerability-discovery">CSC-3940
+Systems Security Automated Vulnerability Discovery</h1>
+<h1 id="part-2-bug-analysis-in-class-activity">Part 2 Bug Analysis: In
+Class Activity</h1>
+<h3 id="analyzing-crashes-with-gdb">Analyzing Crashes with GDB</h3>
+<p>GDB (GNU Debugger) is a powerful tool that helps you debug programs
+by allowing you to run your program under controlled conditions, inspect
+the state of the program at any point, and examine the source of
+crashes. When a program crashes, GDB can be used to determine exactly
+where and why the crash occurred.</p>
+<h4 id="setting-up-gdb">Setting Up GDB</h4>
+<p>Before you can use GDB effectively, ensure that your program is
+compiled with debugging symbols. This makes the GDB output more
+informative, showing you the exact lines of code where issues occur.</p>
+<p>To compile your program with debugging symbols, use the
+<code>-g</code> flag:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gcc</span> <span class="at">-g</span> <span class="at">-o</span> vulnerable_program_gdb vulnerable_program.c</span></code></pre></div>
+<h4 id="running-the-program-in-gdb">Running the Program in GDB</h4>
+<p>To start debugging your program with GDB, use the following
+command:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gdb</span> ./vulnerable_program_gdb</span></code></pre></div>
+<p>This will load your program into GDB. Once inside the GDB prompt, you
+can execute the program with the crashing input like:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">run</span> findings/crashes/id:000000,sig:11,src:000000,time:2073,execs:11861,op:havoc,rep:16</span></code></pre></div>
+<p>This command runs your program with the crashing input
+<code>id:000000,sig:11,src:000000,time:2073,execs:11861,op:havoc,rep:16</code>
+as the input, just as you would run it normally. If the program crashes,
+GDB will pause execution and provide details about the crash.</p>
+<h4 id="examining-the-crash">Examining the Crash</h4>
+<p>Let’s examine the crash by using the following command in GDB:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">run</span> findings/default/crashes/id:000000,sig:11,src:000000,time:2073,execs:11861,op:havoc,rep:16</span></code></pre></div>
+<p>Your output should be similar to the following:</p>
+<pre><code>Processing input...
+Processed input: HHH=?????EOOOOOOOOOOOOOOOOOOOONX|||||||||||||||||||||||||||||?????O??O?????????N||||||||||||X
+
+*** stack smashing detected ***: terminated
+
+Program received signal SIGABRT, Aborted.
+__pthread_kill_implementation (no_tid=0, signo=6, threadid=140737353774912) at ./nptl/pthread_kill.c:44</code></pre>
+<p>This indicates that the program detected something unusual and
+aborted itself to prevent further issues. Specifically, the message
+“stack smashing detected” suggests that the program’s safety mechanisms
+caught a serious error.</p>
+<hr />
+<h5 id="using-gdb-to-investigate">Using GDB to Investigate</h5>
+<p>To understand exactly where and why the crash happened, you can use
+GDB’s <code>backtrace</code> (or <code>bt</code>) command:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bt</span></span></code></pre></div>
+<p>This command shows you a list of functions that were called leading
+up to the crash. Here’s what the output might look like:</p>
+<pre><code>#0  __pthread_kill_implementation (no_tid=0, signo=6, threadid=140737353774912) at ./nptl/pthread_kill.c:44
+#1  __pthread_kill_internal (signo=6, threadid=140737353774912) at ./nptl/pthread_kill.c:78
+#2  __GI___pthread_kill (threadid=140737353774912, signo=signo@entry=6) at ./nptl/pthread_kill.c:89
+#3  0x00007ffff7c42476 in __GI_raise (sig=sig@entry=6) at ../sysdeps/posix/raise.c:26
+#4  0x00007ffff7c287f3 in __GI_abort () at ./stdlib/abort.c:79
+#5  0x00007ffff7c89676 in __libc_message (action=action@entry=do_abort, fmt=fmt@entry=0x7ffff7ddb92e &quot;*** %s ***: terminated\n&quot;) at ../sysdeps/posix/libc_fatal.c:155
+#6  0x00007ffff7d3659a in __GI___fortify_fail (msg=msg@entry=0x7ffff7ddb916 &quot;stack smashing detected&quot;) at ./debug/fortify_fail.c:26
+#7  0x00007ffff7d36566 in __stack_chk_fail () at ./debug/stack_chk_fail.c:24
+#8  0x000055555555532b in process_input (input=0x7fffffffe1f0 &quot;HHH=....&quot;) at vulnerable_program.c:20
+#9  0x000055555555543a in main (argc=2, argv=0x7fffffffe418) at vulnerable_program.c:44</code></pre>
+<p>Here’s what this tells us:</p>
+<ol type="1">
+<li><p><strong>Frame #8 (<code>process_input</code>)</strong>: The crash
+happened in the <code>process_input</code> function at line 20. This is
+where the stack buffer overflow likely occurred.</p></li>
+<li><p><strong>Stack Smashing Detected</strong>: The program detected
+that the stack was compromised and aborted the execution to prevent
+further harm.</p></li>
+<li><p><strong>Input Caused the Issue</strong>: The input that led to
+this overflow is displayed, showing how the program was handling
+potentially dangerous data when the crash occurred.</p></li>
+</ol>
+<h5 id="inspecting-specific-lines-and-values-with-gdb">Inspecting
+Specific Lines and Values with GDB</h5>
+<p>GDB allows you to inspect the specific line of code where the crash
+happened and the values of variables at the time of the crash.</p>
+<ul>
+<li><p><strong><code>list</code></strong>: Displays the source code
+around the line where the crash occurred. This helps you see the exact
+code that was executing when the crash happened.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">list</span></span></code></pre></div>
+<p>Example output:</p>
+<pre><code>10    void process_input(char *input) {
+11        char buffer[64];
+12
+13        // Simulate some processing
+14        printf(&quot;Processing input...\n&quot;);
+15        strcpy(buffer, input);  // This line caused the crash
+16        printf(&quot;Processed input: %s\n&quot;, buffer);
+17    }</code></pre>
+<p>This output shows that the crash occurred on line 15, where the
+<code>strcpy</code> function was called.</p></li>
+<li><p><strong><code>print</code></strong>: Allows you to inspect the
+values of variables at the time of the crash. For example, you can check
+the value of <code>input</code>:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">print</span> input</span></code></pre></div>
+<p>Example output:</p>
+<pre><code>$1 = 0x0</code></pre>
+<p>This output indicates that <code>input</code> was a null pointer,
+which could be the cause of a crash.</p></li>
+</ul>
+<h4 id="continuing-execution-or-exiting">Continuing Execution or
+Exiting</h4>
+<p>After examining the crash, you can either continue execution (though
+this often leads to another crash) or exit GDB:</p>
+<ul>
+<li><strong><code>continue</code> (or <code>c</code>)</strong>:
+Continues execution until the next breakpoint or crash.</li>
+<li><strong><code>quit</code> (or <code>q</code>)</strong>: Exits
+GDB.</li>
+</ul>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">quit</span></span></code></pre></div>
+<p>GDB will prompt you to confirm that you want to exit. Press
+<code>y</code> to confirm.</p>
+<h3 id="analyzing-crashes-with-addresssanitizer">Analyzing Crashes with
+AddressSanitizer</h3>
+<p>AddressSanitizer (ASan) is a runtime memory error detector designed
+to find bugs related to memory usage, such as buffer overflows,
+use-after-free errors, and null pointer dereferences. It’s widely
+supported by both GCC and Clang, and it’s an essential tool for
+identifying and understanding the root cause of crashes.</p>
+<h4 id="compiling-the-program-with-addresssanitizer">Compiling the
+Program with AddressSanitizer</h4>
+<p>To use AddressSanitizer, you need to compile your program with the
+<code>-fsanitize=address</code> flag. This flag tells the compiler to
+include additional runtime checks for memory errors.</p>
+<p>Here’s how to compile the program using GCC or Clang with
+AddressSanitizer enabled:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gcc</span> <span class="at">-g</span> <span class="at">-fsanitize</span><span class="op">=</span>address <span class="at">-o</span> vulnerable_program_asan vulnerable_program.c</span></code></pre></div>
+<p>Or with Clang:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">clang</span> <span class="at">-g</span> <span class="at">-fsanitize</span><span class="op">=</span>address <span class="at">-o</span> vulnerable_program_asan vulnerable_program.c</span></code></pre></div>
+<ul>
+<li><code>-g</code>: Includes debugging symbols to make the output more
+informative when debugging.</li>
+<li><code>-fsanitize=address</code>: Enables AddressSanitizer.</li>
+</ul>
+<h4 id="running-the-program-with-addresssanitizerasan">Running the
+Program with AddressSanitizer(ASan)</h4>
+<p>Once compiled, run the program as usual. AddressSanitizer will
+automatically monitor memory accesses and will provide detailed
+diagnostics if it detects an error. We will now run the compiled program
+with the crashing input AFL generated. To do this, run the ASan version
+of your program with the crashing input as seen below.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./vulnerable_program_asan</span> findings/crashes/id:000000,sig:11,src:000000,time:2073,execs:11861,op:havoc,rep:16</span></code></pre></div>
+<p>If the program encounters a memory error, ASan will print a detailed
+error message to the console, including the type of error, the location
+in the code where the error occurred, and a stack trace.</p>
+<h4 id="example-output-for-the-stack-based-buffer-overflow-above-it-is-ok-if-your-output-does-not-exactly-match-the-output-below">Example
+Output for the Stack-Based Buffer Overflow above (it is ok if your
+output does not exactly match the output below)</h4>
+<p>For a stack-based buffer overflow, AddressSanitizer might produce
+output like the following:</p>
+<pre><code>=================================================================
+==12345==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x7fffd09dfe00 at pc 0x0000004007d5 bp 0x7fffd09df5c8 sp 0x7fffd09df5a0
+WRITE of size 64 at 0x7fffd09dfe00 thread T0
+    #0 0x4007d4 in process_input /path/to/vulnerable_program.c:15
+    #1 0x400987 in main /path/to/vulnerable_program.c:30
+    #2 0x7f15bbd1c0b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
+    #3 0x4006fd in _start (/path/to/vulnerable_program_asan+0x4006fd)
+
+Address 0x7fffd09dfe00 is located in the stack of thread T0 at offset 64 in frame
+    #0 0x4006aa in process_input /path/to/vulnerable_program.c:10</code></pre>
+<p>This output shows that the program attempted to write beyond the
+allocated buffer size on the stack, causing a stack-buffer-overflow.</p>
+<hr />
+</body>
+</html>

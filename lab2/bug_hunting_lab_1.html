@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>automated_bug_hunting_lab</title>
+  <style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } 
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.at { color: #204a87; } 
+code span.bn { color: #0000cf; } 
+code span.cf { color: #204a87; font-weight: bold; } 
+code span.ch { color: #4e9a06; } 
+code span.cn { color: #8f5902; } 
+code span.co { color: #8f5902; font-style: italic; } 
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.dt { color: #204a87; } 
+code span.dv { color: #0000cf; } 
+code span.er { color: #a40000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #0000cf; } 
+code span.fu { color: #204a87; font-weight: bold; } 
+code span.im { } 
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.kw { color: #204a87; font-weight: bold; } 
+code span.op { color: #ce5c00; font-weight: bold; } 
+code span.ot { color: #8f5902; } 
+code span.pp { color: #8f5902; font-style: italic; } 
+code span.sc { color: #ce5c00; font-weight: bold; } 
+code span.ss { color: #4e9a06; } 
+code span.st { color: #4e9a06; } 
+code span.va { color: #000000; } 
+code span.vs { color: #4e9a06; } 
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } 
+</style>
+  <style type="text/css">
+html {
+font-size: 100%;
+overflow-y: scroll;
+-webkit-text-size-adjust: 100%;
+-ms-text-size-adjust: 100%;
+}
+body {
+color: #444;
+font-family: Georgia, Palatino, 'Palatino Linotype', Times, 'Times New Roman', serif;
+font-size: 12px;
+line-height: 1.7;
+padding: 1em;
+margin: auto;
+max-width: 42em;
+background: #fefefe;
+}
+a {
+color: #0645ad;
+text-decoration: none;
+}
+a:visited {
+color: #0b0080;
+}
+a:hover {
+color: #06e;
+}
+a:active {
+color: #faa700;
+}
+a:focus {
+outline: thin dotted;
+}
+*::-moz-selection {
+background: rgba(255, 255, 0, 0.3);
+color: #000;
+}
+*::selection {
+background: rgba(255, 255, 0, 0.3);
+color: #000;
+}
+a::-moz-selection {
+background: rgba(255, 255, 0, 0.3);
+color: #0645ad;
+}
+a::selection {
+background: rgba(255, 255, 0, 0.3);
+color: #0645ad;
+}
+p {
+margin: 1em 0;
+}
+img {
+max-width: 100%;
+}
+h1, h2, h3, h4, h5, h6 {
+color: #111;
+line-height: 125%;
+margin-top: 2em;
+font-weight: normal;
+}
+h4, h5, h6 {
+font-weight: bold;
+}
+h1 {
+font-size: 2.5em;
+}
+h2 {
+font-size: 2em;
+}
+h3 {
+font-size: 1.5em;
+}
+h4 {
+font-size: 1.2em;
+}
+h5 {
+font-size: 1em;
+}
+h6 {
+font-size: 0.9em;
+}
+blockquote {
+color: #666666;
+margin: 0;
+padding-left: 3em;
+border-left: 0.5em #EEE solid;
+}
+hr {
+display: block;
+height: 2px;
+border: 0;
+border-top: 1px solid #aaa;
+border-bottom: 1px solid #eee;
+margin: 1em 0;
+padding: 0;
+}
+pre, code, kbd, samp {
+color: #000;
+font-family: monospace, monospace;
+_font-family: 'courier new', monospace;
+font-size: 0.98em;
+}
+pre {
+white-space: pre;
+white-space: pre-wrap;
+word-wrap: break-word;
+}
+b, strong {
+font-weight: bold;
+}
+dfn {
+font-style: italic;
+}
+ins {
+background: #ff9;
+color: #000;
+text-decoration: none;
+}
+mark {
+background: #ff0;
+color: #000;
+font-style: italic;
+font-weight: bold;
+}
+sub, sup {
+font-size: 75%;
+line-height: 0;
+position: relative;
+vertical-align: baseline;
+}
+sup {
+top: -0.5em;
+}
+sub {
+bottom: -0.25em;
+}
+ul, ol {
+margin: 1em 0;
+padding: 0 0 0 2em;
+}
+li p:last-child {
+margin-bottom: 0;
+}
+ul ul, ol ol {
+margin: .3em 0;
+}
+dl {
+margin-bottom: 1em;
+}
+dt {
+font-weight: bold;
+margin-bottom: .8em;
+}
+dd {
+margin: 0 0 .8em 2em;
+}
+dd:last-child {
+margin-bottom: 0;
+}
+img {
+border: 0;
+-ms-interpolation-mode: bicubic;
+vertical-align: middle;
+}
+figure {
+display: block;
+text-align: center;
+margin: 1em 0;
+}
+figure img {
+border: none;
+margin: 0 auto;
+}
+figcaption {
+font-size: 0.8em;
+font-style: italic;
+margin: 0 0 .8em;
+}
+table {
+margin-bottom: 2em;
+border-bottom: 1px solid #ddd;
+border-right: 1px solid #ddd;
+border-spacing: 0;
+border-collapse: collapse;
+}
+table th {
+padding: .2em 1em;
+background-color: #eee;
+border-top: 1px solid #ddd;
+border-left: 1px solid #ddd;
+}
+table td {
+padding: .2em 1em;
+border-top: 1px solid #ddd;
+border-left: 1px solid #ddd;
+vertical-align: top;
+}
+.author {
+font-size: 1.2em;
+text-align: center;
+}
+@media only screen and (min-width: 480px) {
+body {
+font-size: 14px;
+}
+}
+@media only screen and (min-width: 768px) {
+body {
+font-size: 16px;
+}
+}
+@media print {
+* {
+background: transparent !important;
+color: black !important;
+filter: none !important;
+-ms-filter: none !important;
+}
+body {
+font-size: 12pt;
+max-width: 100%;
+}
+a, a:visited {
+text-decoration: underline;
+}
+hr {
+height: 1px;
+border: 0;
+border-bottom: 1px solid black;
+}
+a[href]:after {
+content: " (" attr(href) ")";
+}
+abbr[title]:after {
+content: " (" attr(title) ")";
+}
+.ir a:after, a[href^="javascript:"]:after, a[href^="#"]:after {
+content: "";
+}
+pre, blockquote {
+border: 1px solid #999;
+padding-right: 1em;
+page-break-inside: avoid;
+}
+tr, img {
+page-break-inside: avoid;
+}
+img {
+max-width: 100% !important;
+}
+@page :left {
+margin: 15mm 20mm 15mm 10mm;
+}
+@page :right {
+margin: 15mm 10mm 15mm 20mm;
+}
+p, h2, h3 {
+orphans: 3;
+widows: 3;
+}
+h2, h3 {
+page-break-after: avoid;
+}
+}</style>
+</head>
+<body>
+<h1 id="csc-3940-systems-security-automated-vulnerability-discovery">CSC-3940
+Systems Security Automated Vulnerability Discovery</h1>
+<h1 id="part-1-bug-hunting-in-class-activity">Part 1 Bug Hunting: In
+Class Activity</h1>
+<h2 id="introduction">Introduction</h2>
+<p>Welcome to the Automated Bug Hunting Lab! In this lab, you’ll learn
+how to use automated tools to discover and analyze software
+vulnerabilities, specifically focusing on <strong>stack-based buffer
+overflows</strong> (for the first part of the lab). You’ll be introduced
+to fuzzing with AFL (American Fuzzy Lop) and debugging crashes using
+AddressSanitizer (ASan) and GDB (GNU Debugger). These are essential
+skills for ensuring the reliability and security of software in
+real-world applications.</p>
+<h2 id="lab-objectives">Lab Objectives</h2>
+<p>By completing this lab, you will:</p>
+<ol type="1">
+<li><p><strong>Understand Fuzzing</strong>: Learn what fuzzing is, how
+it works, and why it is a powerful tool for discovering bugs in
+software. You’ll use AFL to generate test cases that can uncover hidden
+vulnerabilities.</p></li>
+<li><p><strong>Analyze Crashes with GDB</strong>: Learn how to use GDB
+to analyze crashes, inspect the state of your program at the time of the
+crash, and understand the root cause of the issue. You’ll practice using
+GDB to navigate through your code, examine variable values, and pinpoint
+the exact source of a crash.</p></li>
+<li><p><strong>Identify Stack-Based Buffer Overflows with
+AddressSanitizer</strong>: Gain familiarity with AddressSanitizer
+(ASan), a tool that automatically detects memory errors like stack-based
+buffer overflows, and heap-based buffer overflows. You’ll learn how to
+compile your program with ASan and interpret its output to identify and
+fix bugs.</p></li>
+<li><p><strong>Apply Debugging Techniques</strong>: You’ll apply
+systematic approaches to find, and understand bugs in your
+code.</p></li>
+</ol>
+<hr />
+<p>To get started, let’s examine a simple C program that processes user
+input. This program contains a common type of vulnerability known as a
+<strong>stack-based buffer overflow</strong>, which occurs when more
+data is written to a buffer on the stack than it can hold. Stack-based
+buffer overflows can lead to unpredictable behavior and potential
+security risks, including the possibility of executing arbitrary
+code.</p>
+<p>Here’s the code you’ll be working with:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdlib.h&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;string.h&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> process_input<span class="op">(</span><span class="dt">char</span> <span class="op">*</span>input<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">char</span> buffer<span class="op">[</span><span class="dv">64</span><span class="op">];</span>  <span class="co">// Small buffer for demonstration purposes</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Convert lowercase letters to uppercase in the input string</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;Processing input...</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> strlen<span class="op">(</span>input<span class="op">);</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>input<span class="op">[</span>i<span class="op">]</span> <span class="op">&gt;=</span> <span class="ch">&#39;a&#39;</span> <span class="op">&amp;&amp;</span> input<span class="op">[</span>i<span class="op">]</span> <span class="op">&lt;=</span> <span class="ch">&#39;z&#39;</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>            input<span class="op">[</span>i<span class="op">]</span> <span class="op">-=</span> <span class="dv">32</span><span class="op">;</span>  <span class="co">// Convert to uppercase</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Copy input to buffer, potentially causing a stack-based buffer overflow</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    strcpy<span class="op">(</span>buffer<span class="op">,</span> input<span class="op">);</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;Processed input: </span><span class="sc">%s\n</span><span class="st">&quot;</span><span class="op">,</span> buffer<span class="op">);</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">int</span> argc<span class="op">,</span> <span class="dt">char</span> <span class="op">*</span>argv<span class="op">[])</span> <span class="op">{</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>argc <span class="op">&lt;</span> <span class="dv">2</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;Usage: </span><span class="sc">%s</span><span class="st"> &lt;input_file&gt;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> argv<span class="op">[</span><span class="dv">0</span><span class="op">]);</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">FILE</span> <span class="op">*</span>file <span class="op">=</span> fopen<span class="op">(</span>argv<span class="op">[</span><span class="dv">1</span><span class="op">],</span> <span class="st">&quot;r&quot;</span><span class="op">);</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(!</span>file<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>        perror<span class="op">(</span><span class="st">&quot;Failed to open file&quot;</span><span class="op">);</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Read the content of the file into a buffer</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="dt">char</span> input<span class="op">[</span><span class="dv">256</span><span class="op">];</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>fgets<span class="op">(</span>input<span class="op">,</span> <span class="kw">sizeof</span><span class="op">(</span>input<span class="op">),</span> file<span class="op">)</span> <span class="op">==</span> NULL<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>        perror<span class="op">(</span><span class="st">&quot;Failed to read from file&quot;</span><span class="op">);</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>        fclose<span class="op">(</span>file<span class="op">);</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    fclose<span class="op">(</span>file<span class="op">);</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Process the input</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    process_input<span class="op">(</span>input<span class="op">);</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong><em>Before you move on, take a minute to analyze the code to
+see if you can locate the vulnerability.</em></strong></p>
+<p>The program takes an input string from a file, processes it, and
+stores it in a small buffer located on the stack. If the input is too
+large, it could overflow the buffer, leading to a crash or other
+unexpected behavior. This type of vulnerability is called a
+<strong>stack-based buffer overflow</strong>.</p>
+<h2 id="compiling-the-program-with-gcc-and-debugging-symbols">Compiling
+the Program with GCC and Debugging Symbols</h2>
+<h3 id="save-the-program">1. Save the Program</h3>
+<p>Save the C program to a file named
+<code>vulnerable_program.c</code>.</p>
+<h3 id="compile-with-gcc-and-debugging-symbols">2. Compile with GCC and
+Debugging Symbols</h3>
+<p>You can compile the program with <a href="https://en.wikipedia.org/wiki/Debug_symbol">debugging symbols</a>
+using the <code>-g</code> option in GCC:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gcc</span> <span class="at">-g</span> <span class="at">-o</span> vulnerable_program vulnerable_program.c</span></code></pre></div>
+<ul>
+<li><code>-g</code>: Includes debugging symbols in the executable.</li>
+<li><code>-o vulnerable_program</code>: Specifies the output executable
+file name (<code>vulnerable_program</code>).</li>
+<li><code>vulnerable_program.c</code>: The source file.</li>
+</ul>
+<h4 id="you-can-play-around-with-the-program-to-see-how-it-works-by-doing-the-following">You
+can play around with the program to see how it works by doing the
+following:</h4>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;This is some random text&quot;</span> <span class="op">&gt;</span> input-file.txt </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./vulnerable_program</span> input-file.txt</span></code></pre></div>
+<p><code>echo &quot;This is some random text&quot; &gt; input-file.txt</code>
+creates a file named <code>input-file.txt</code> with the text
+<code>This is some random text</code>, and
+<code>./vulnerable_program input-file.txt</code> runs the program with
+that file.</p>
+<h2 id="testing-the-program-with-afl-fuzzer">Testing the Program with
+AFL Fuzzer</h2>
+<h3 id="install-afl-you-can-skip-this-step-since-afl-is-already-installed">1.
+Install <a href="https://lcamtuf.coredump.cx/afl/">AFL</a> (You can skip
+this step since afl is already installed)</h3>
+<p>If AFL is not already installed, you can install it using:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get install afl</span></code></pre></div>
+<h3 id="recompile-the-program-with-afl">2. Recompile the Program with
+AFL</h3>
+<p>AFL requires that you compile the program with its own compiler
+wrapper, <code>afl-clang-fast</code> or <code>afl-gcc</code>, to
+instrument the binary:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">afl-clang-fast</span> <span class="at">-g</span> <span class="at">-o</span> vulnerable_program_afl vulnerable_program.c</span></code></pre></div>
+<ul>
+<li><code>afl-clang-fast</code>: AFL’s clang wrapper for compiling the
+program with AFL’s instrumentation.</li>
+<li><code>-g</code>: Includes debugging symbols.</li>
+<li><code>-o vulnerable_program_afl</code>: Specifies the output
+executable file name for AFL fuzzing.</li>
+<li><code>vulnerable_program.c</code>: The source file.</li>
+</ul>
+<h3 id="create-a-test-input-directory">3. Create a Test Input
+Directory</h3>
+<p>AFL requires a directory with one or more seed inputs to start
+fuzzing. Create a directory called <code>inputs</code> with a simple
+input file:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> inputs</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;hello&quot;</span> <span class="op">&gt;</span> inputs/example.txt</span></code></pre></div>
+<h3 id="run-afl-fuzzer">4. Run AFL Fuzzer</h3>
+<p>You can now run AFL to fuzz the program:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">afl-fuzz</span> <span class="at">-i</span> inputs <span class="at">-o</span> findings ./vulnerable_program_afl @@</span></code></pre></div>
+<ul>
+<li><code>-i inputs</code>: Specifies the input directory containing
+seed test cases.</li>
+<li><code>-o findings</code>: Specifies the output directory where AFL
+will save the results, including any crashes it finds.</li>
+<li><code>./vulnerable_program_afl @@</code>: Specifies the target
+binary (<code>vulnerable_program_afl</code>) to fuzz. <code>@@</code> is
+a placeholder that AFL uses to pass each input file to the program.</li>
+</ul>
+<p>If you get an error stating
+<code>Hmm, your system is configured to send core dump notifications to an external utility.</code>
+run the command below:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> core <span class="kw">|</span> <span class="fu">sudo</span> tee /proc/sys/kernel/core_pattern</span></code></pre></div>
+<h3 id="monitor-afls-progress">5. Monitor AFL’s Progress</h3>
+<p>AFL will start running and display a console interface showing the
+fuzzing process. You can monitor the number of executions, the speed,
+and whether any crashes have been found.</p>
+<h3 id="checkpoint-stop-here">Checkpoint, stop here:</h3>
+<ul>
+<li>Did the fuzzer run correctly?</li>
+<li>How long did it take for AFL to generate its first crash?</li>
+<li>How would you explain the <code>total crashes : 89 (2 saved)</code>
+part of AFL’s status output?</li>
+</ul>
+<hr />
+</body>
+</html>
