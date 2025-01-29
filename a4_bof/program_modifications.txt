@@ -1,0 +1,6 @@
+Summary of Changes
+We will also need to disable address randomization: 
+Compile command: 
+Use 18 A's instead of 30 : 
+Executing the program: ./auth_overflow AAAAAAAAAAAAAAAAAA
+In GDB: run AAAAAAAAAAAAAAAAAA
