@@ -5,6 +5,8 @@
 !/**/
 !*.*
 
+*:ZoneIdentifier
+
 ### C ###
 # Prerequisites
 *.d
